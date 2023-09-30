@@ -1,0 +1,15 @@
+{
+    "name": "C++ Development Container",
+    "dockerFile": "Dockerfile",
+  
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "llvm-vs-code-extensions.vscode-clangd",
+          "ms-vscode.cpptools"
+        ]
+      }
+    },
+    "runArgs": ["--privileged"]
+  }
+  

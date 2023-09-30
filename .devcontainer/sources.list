@@ -1,0 +1,9 @@
+deb http://mirrors.bfsu.edu.cn/ubuntu/  jammy main restricted universe multiverse
+# deb-src http://mirrors.bfsu.edu.cn/ubuntu/  jammy main restricted universe multiverse
+deb http://mirrors.bfsu.edu.cn/ubuntu/  jammy-updates main restricted universe multiverse
+# deb-src http://mirrors.bfsu.edu.cn/ubuntu/  jammy-updates main restricted universe multiverse
+deb http://mirrors.bfsu.edu.cn/ubuntu/  jammy-backports main restricted universe multiverse
+# deb-src http://mirrors.bfsu.edu.cn/ubuntu/  jammy-backports main restricted universe multiverse
+
+deb http://mirrors.bfsu.edu.cn/ubuntu/  jammy-security main restricted universe multiverse
+deb https://mirrors.bfsu.edu.cn/llvm-apt/jammy/ llvm-toolchain-jammy main
