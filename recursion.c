@@ -7,7 +7,7 @@ long long factorial(int n)
     if(n == 0)
         return 1;
     else{
-        thread_yield();
+        uthread_yield();
         return n * factorial(n-1);
     }
 }

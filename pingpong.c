@@ -20,7 +20,7 @@ void test_func1(void* _arg){
     int arg = (intptr_t ) _arg;
     for(int i=0;i<5;i++){
         printf("thread %d: %d\n",arg,i);
-        thread_yield();
+        uthread_yield();
     }
 }
 

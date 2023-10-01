@@ -39,7 +39,7 @@ void test_func(void* _arg){
     for(int i=0;i<5;i++){
         printf("thread %d: %d\n",arg,x);
         x++;
-        thread_yield();
+        uthread_yield();
     }
 }
 

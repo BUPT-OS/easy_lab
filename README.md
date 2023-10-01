@@ -135,8 +135,8 @@ git clone https://github.com/rust-real-time-os/easy_lab.git
 * 用户程序调用`uthread_create`创建一个协程，放入调度队列中。
 * 创建完全部的协程后，主线程调用`schedule()`阻塞进入调度程序，开始执行各个协程。调度采用FIFO(先进先出)的顺序
 * 线程开始执行的时候，首先跳转到函数`_uthread_entry`,然后才进入对应的函数
-* 当协程中的函数调用`thread_yield`时，控制权转让给调度器
-* 当调度器执行`thread_resume`时，会重新在中断的地方开始执行
+* 当协程中的函数调用`uthread_yield`时，控制权转让给调度器
+* 当调度器执行`uthread_resume`时，会重新在中断的地方开始执行
 * 当调度器发现函数执行结束时，会调用`thread_destory`销毁结构体。
 
 
@@ -162,7 +162,7 @@ make tests
 * 初始化系统：`init_uthreads`
 * 初始化每个用户态线程：`uthread_create`
 * 调度: `schedule`
-* 切换线程: `thread_yield`和 `thread_resume`
+* 切换线程: `uthread_yield`和 `uthread_resume`
 * _uthread_entry : 函数的入口
 
 除此以外，你可能还需要一些helper函数，例如调度时的FIFO，你可以用数组实现也可以用链表实现（建议用链表）。
