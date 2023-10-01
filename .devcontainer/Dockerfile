@@ -8,7 +8,9 @@ RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.
 RUN apt-get update && apt-get install -y \
     make \
     git \
-    clang-format clang-tidy clang-tools clang clangd gdb
+    gcc \
+    clang clangd gdb && \
+    rm -rf /var/lib/apt/lists/*
 
 # 默认的工作目录
 WORKDIR /workspace
