@@ -3,7 +3,8 @@
 
 #include <stddef.h>
 #define STACK_SIZE 4096
-#define DEFAULT_THREAD_NAME "uthread"
+
+/// @brief 线程的状态
 enum thread_state {
   THREAD_INIT,
   THREAD_RUNNING,
@@ -11,6 +12,8 @@ enum thread_state {
   THREAD_SUSPENDED,
 };
 
+/// @brief 线程的上下文。
+/// 其中
 struct context {
   long long rip, rsp, rbp, rbx, r12, r13, r14, r15;
   long long rdi, rsi, rdx;

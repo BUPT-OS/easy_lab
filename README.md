@@ -2,7 +2,7 @@
 ## 截止: 2023.10.21 23:59
 助教 qiuqichen@bupt.edu.cn
 # 背景
-为了方便讲解，以下都以Linux x86-64使用的标准进行讲解。Windows中采用的Calling Convention和这里略有不同，因此建议使用docker环境进行试验和学习。对于Arm64环境的同学，建议是换到一台有x86-64环境的PC。（我们后面可能会提供arm64的汇编代码）
+为了方便讲解，以下都以Linux x86-64使用的标准进行讲解。Windows中采用的Calling Convention和这里略有不同，因此建议使用docker环境进行试验和学习。对于Arm64环境的同学，建议是换到一台有x86-64环境的PC。
 
 ## x86-64 寄存器
 x64提供了以下通用寄存器。每个寄存器都可以访问其32-,16,8-bit的寄存器。
@@ -93,10 +93,30 @@ PS: github上的code space也可以用。但我没有测试过。
 ### 安装Docker
 * 可以参考这个链接: [安装docker](https://github.com/rust-real-time-os/os_lab/tree/lab2#docker%E5%AE%89%E8%A3%85%E5%8F%8A%E6%8B%89%E5%8F%96%E4%BB%A3%E7%A0%81)
 * 也可以在vscode里按ctrl+shift+P,输入`install`
-![install_docker](img/install_docker.png)
+#### troubleshooting
+![docker_install](img/docker_install.png)
+
+如果安装遇到上面问题，可能需要安装一下wsl2。[一个参考](https://blog.csdn.net/qq_43636384/article/details/128453416)
+
+### git clone 本项目
+#### git 安装
+[链接](https://registry.npmmirror.com/-/binary/git-for-windows/v2.42.0.windows.2/Git-2.42.0.2-64-bit.exe)
+
+#### clone
+
+* 也可以下载，最好是clone，这样有更新就可以拉取到了。
+```bash
+git clone https://github.com/rust-real-time-os/easy_lab.git
+
+# git clone https://gitee.com/ruiqurm/easy_lab.git
+```
 ### 使用dev container启动
 打开项目文件夹
 ![Alt text](img/open_folder.png)
+
+打开的时候`.devontainer`要在第一层文件夹：
+
+![container](img/container.png)
 
 按ctrl+shift+P或者F1，输入reopen.. 选择下面这个选项即可使用dev container
 ![open](img/open.png)
@@ -124,6 +144,20 @@ PS: github上的code space也可以用。但我没有测试过。
 ## 你的任务
 修改代码，通过测试recursion.c，simple.c和pingpong.c
 
+执行
+```
+make 
+```
+即可编译uthread.c和所有测试。
+
+使用
+```
+make tests
+```
+运行测试。
+
+
+
 你可能主要需要修改下面的函数：
 * 初始化系统：`init_uthreads`
 * 初始化每个用户态线程：`uthread_create`
@@ -135,6 +169,20 @@ PS: github上的code space也可以用。但我没有测试过。
 
 你可以随意修改uthread.c/h和switch.S的其他部分。只要最终能编译并通过测试即可。
 
+## Guideline
+如果你不知道从哪里开始，你可以参考下面的建议。
+
+1. 阅读switch.S的代码
+2. 阅读`struct context`的成员变量，看如何使用该结构体与`thread_switch`交互
+2. 写一个简单的demo，尝试调用`thread_switch`
+4. 阅读uthread.c上面的框架，看`_uthread_entry`需要传哪些参数。
+
+在阅读的过程中，你可能会遇到很多没学过的知识，比如你可能读不明白汇编代码的含义。这时我们建议用chatGPT之类的大模型工具来辅助快速上手学习。
+
+例如，你可以问它这段汇编代码的含义
+![llm_example](img/llm_example.png)
+
+
 ## TIPS
 * 注意栈需要16字节对齐，下面的代码可以帮你对齐：
 ```
@@ -143,6 +191,8 @@ address & -16L
 完成对齐后，还需要将栈指针向下移动一个字长（-8字节），让它8字节对齐但是不16字节对齐（这和我们的汇编部分的实现有关，后面切换线程进入新函数会压入一个%rbp，使得栈指针16字节对齐）。如果后面发现segment fault，可能是这里有问题
 * 注意栈是向下增长的，因此你初始化时栈指针应该是在高地址的
 * 对于线程切换，我们提供了一段汇编代码在`switch.S`中。你也可以使用ucontext.h或者自己用汇编实现一段逻辑。
+* 每个线程的入口都是`_uthread_entry`，然后在内部再去调用对应的线程函数。
+* 注意设置标志位，以及利用标志位检查需要运行的线程。
 * `_uthread_entry`结束后，需要回到调度器，因此你需要调用thread_switch
 * 你可以使用全局`current_thread`和`main_thread`来保存当前执行的主线程和用户态线程的上下文。
 * 你可以使用gdb来调试bug
