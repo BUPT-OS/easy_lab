@@ -46,7 +46,7 @@ void schedule();
 /// @param thread_name 线程的名字
 struct uthread *uthread_create(void (*func)(void *), void *arg,const char* thread_name);
 
-/// @brief 挂起线程
+/// @brief 恢复线程
 /// @param 线程的控制块
 void uthread_resume(struct uthread *tcb);
 
