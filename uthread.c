@@ -91,7 +91,6 @@ void _uthread_entry(struct uthread *tcb, void (*thread_func)(void *),
 }
 
 void init_uthreads() {
-  /*
-  TODO: 初始化用户态线程。对于我们的参考实现，在这里我们初始化了一些全局的静态变量。
-  */
+  main_thread = malloc(sizeof(struct uthread));
+  make_dummpy_context(&main_thread->context);
 }
