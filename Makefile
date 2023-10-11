@@ -1,4 +1,4 @@
-all: tests
+all: demo tests
 .PHONY: clean dump tests
 CFLAGS := -Wall -g -O0
 CC := gcc
@@ -16,7 +16,8 @@ pingpong : pingpong.c uthread.o switch.o
 	
 recursion : recursion.c uthread.o switch.o
 	$(CC) $(CFLAGS) -o $@ $^
-
+demo : demo.c switch.o
+	$(CC) $(CFLAGS) -o $@ $^
 tests: simple pingpong recursion
 	./simple
 	./pingpong
