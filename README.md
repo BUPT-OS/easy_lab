@@ -137,7 +137,7 @@ git clone https://github.com/rust-real-time-os/easy_lab.git
 * 线程开始执行的时候，首先跳转到函数`_uthread_entry`,然后才进入对应的函数
 * 当协程中的函数调用`uthread_yield`时，控制权转让给调度器
 * 当调度器执行`uthread_resume`时，会重新在中断的地方开始执行
-* 当调度器发现函数执行结束时，会调用`thread_destory`销毁结构体。
+* 当调度器发现函数执行结束时，会调用`thread_destroy`销毁结构体。
 
 
 

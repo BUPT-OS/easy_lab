@@ -55,6 +55,6 @@ long long uthread_yield();
 
 /// @brief 销毁线程的结构体
 /// @param tcb 线程的控制块q
-void thread_destory(struct uthread *tcb);
+void thread_destroy(struct uthread *tcb);
 
 #endif

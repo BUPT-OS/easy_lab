@@ -79,7 +79,7 @@ void uthread_resume(struct uthread *tcb) {
   */
 }
 
-void thread_destory(struct uthread *tcb) {
+void thread_destroy(struct uthread *tcb) {
   free(tcb);
 }
 
