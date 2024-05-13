@@ -91,7 +91,7 @@ PS: github上的code space也可以用。但我没有测试过。
 > 选择较低版本后，reload window即可。
 
 ### 安装Docker
-* 可以参考这个链接: [安装docker](https://github.com/rust-real-time-os/os_lab/tree/lab2#docker%E5%AE%89%E8%A3%85%E5%8F%8A%E6%8B%89%E5%8F%96%E4%BB%A3%E7%A0%81)
+* 可以参考这个链接: [安装docker](https://github.com/BUPT-OS/os_lab/tree/lab2#docker%E5%AE%89%E8%A3%85%E5%8F%8A%E6%8B%89%E5%8F%96%E4%BB%A3%E7%A0%81)
 * 也可以在vscode里按ctrl+shift+P,输入`install`
 #### troubleshooting
 ![docker_install](img/docker_install.png)
