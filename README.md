@@ -1,6 +1,6 @@
 # User Level Thread
-## 截止: 2023.10.21 23:59
-助教 qiuqichen@bupt.edu.cn
+## 截止: 2024.10.29 23:59
+助教 yyxrust@bupt.edu.cn
 # 背景
 为了方便讲解，以下都以Linux x86-64使用的标准进行讲解。Windows中采用的Calling Convention和这里略有不同，因此建议使用docker环境进行试验和学习。对于Arm64环境的同学，建议是换到一台有x86-64环境的PC。
 
@@ -172,10 +172,10 @@ make tests
 ## Guideline
 如果你不知道从哪里开始，你可以参考下面的建议。
 
-1. 阅读switch.S的代码
+1. 阅读`switch.S`的代码
 2. 阅读`struct context`的成员变量，看如何使用该结构体与`thread_switch`交互
-2. 写一个简单的demo，尝试调用`thread_switch`
-4. 阅读uthread.c上面的框架，看`_uthread_entry`需要传哪些参数。
+3. 阅读`demo.c`，理解`thread_switch`的使用方式
+4. 阅读`uthread.c`上面的框架，看`_uthread_entry`需要传哪些参数。
 
 在阅读的过程中，你可能会遇到很多没学过的知识，比如你可能读不明白汇编代码的含义。这时我们建议用chatGPT之类的大模型工具来辅助快速上手学习。
 
