@@ -24,4 +24,4 @@ tests: simple pingpong recursion
 	./recursion
 
 clean:
-	rm -f simple uthread.o switch.o test_simple.S pingpong recursion
+	rm -f simple uthread.o switch.o pingpong recursion demo
