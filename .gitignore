@@ -1,7 +1,5 @@
-*.out
-*.o
+*
+!*.*
+!*/
 .vscode
-demo
-pingpong
-recursion
-simple
+.o
