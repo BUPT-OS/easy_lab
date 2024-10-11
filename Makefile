@@ -7,7 +7,7 @@ OBJS := uthread.o switch.o
 TARGETS := simple pingpong recursion demo
 
 # 默认目标
-all: $(TARGETS)
+all: $(TARGETS) tests
 
 .PHONY: clean tests
 
