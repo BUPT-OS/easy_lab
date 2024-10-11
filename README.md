@@ -106,7 +106,7 @@ PS: github上的code space也可以用。但我没有测试过。
 
 * 也可以下载，最好是clone，这样有更新就可以拉取到了。
 ```bash
-git clone https://github.com/rust-real-time-os/easy_lab.git
+git clone https://github.com/BUPT-OS/easy_lab.git
 
 # git clone https://gitee.com/gitee-yyx2020211226/easy_lab.git
 ```
