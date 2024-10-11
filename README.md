@@ -108,7 +108,7 @@ PS: github上的code space也可以用。但我没有测试过。
 ```bash
 git clone https://github.com/rust-real-time-os/easy_lab.git
 
-# git clone https://gitee.com/ruiqurm/easy_lab.git
+# git clone https://gitee.com/gitee-yyx2020211226/easy_lab.git
 ```
 ### 使用dev container启动
 打开项目文件夹
@@ -209,7 +209,7 @@ address & -16L
 
 报告占比30%,实验70%
 
-提交方式为暂时为生成一个patch，在[平台](http://10.109.246.160:8765/admin)(使用校园网访问)提交。如何生成patch,详见[提交](https://github.com/rust-real-time-os/os_lab/tree/lab1#%E6%8F%90%E4%BA%A4)。如果出现提交问题，可以参考zulip上面的[汇总](https://rros.zulipchat.com/#narrow/stream/376116-general/topic/.5B.E6.8F.90.E4.BA.A4.E9.94.99.E8.AF.AF.E8.AF.B7.E5.85.88.E7.9C.8B.E6.AD.A4.E8.B4.B4.5D)
+提交方式为暂时为生成一个patch，在[平台](http://10.161.28.28:8765/admin)(使用校园网访问)提交。如何生成patch,详见[提交](https://github.com/rust-real-time-os/os_lab/tree/lab1#%E6%8F%90%E4%BA%A4)。如果出现提交问题，可以参考zulip上面的[汇总](https://rros.zulipchat.com/#narrow/stream/376116-general/topic/.5B.E6.8F.90.E4.BA.A4.E9.94.99.E8.AF.AF.E8.AF.B7.E5.85.88.E7.9C.8B.E6.AD.A4.E8.B4.B4.5D)
 
 
 # 参考
