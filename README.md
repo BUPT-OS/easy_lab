@@ -31,7 +31,7 @@ easy_lab2在本仓库的lab2分支上，gitee链接：https://gitee.com/ruiqurm/
 
 ```bash
 # 将lab2分支拉取到easy_lab2目录下
-git clone -b lab2 https://gitee.com/ruiqurm/easy_lab.git easy_lab2
+git clone -b lab2 git@gitee.com:gitee-yyx2020211226/easy_lab.git easy_lab2
 # 或者
 git clone -b lab2 https://github.com/rust-real-time-os/easy_lab.git easy_lab2
 ```
