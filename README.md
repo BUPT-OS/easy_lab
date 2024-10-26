@@ -33,7 +33,7 @@ easy_lab2在本仓库的lab2分支上，gitee链接：https://gitee.com/ruiqurm/
 # 将lab2分支拉取到easy_lab2目录下
 git clone -b lab2 git@gitee.com:gitee-yyx2020211226/easy_lab.git easy_lab2
 # 或者
-git clone -b lab2 https://github.com/rust-real-time-os/easy_lab.git easy_lab2
+git clone -b lab2 git@github.com:BUPT-OS/easy_lab.git easy_lab2
 ```
 
 ### 提交方式
@@ -131,9 +131,7 @@ g++ main.cpp matrix.cpp multiply.cpp -std=c++1z -pthread -mfma -o main -D N=1024
 
 ## tips
 
-服务器上的矩阵是行主序存储（row-major）方式，CPU、缓存信息如下：
-
-![](img/CPU_info.png)
+服务器上的矩阵是行主序存储（row-major）方式，缓存信息如下：
 
 ![](img/cacheline_size.png)
 
