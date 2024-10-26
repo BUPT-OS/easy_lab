@@ -1,220 +1,156 @@
-# User Level Thread
-## 截止: 2024.10.29 23:59
-助教 yyxrust@bupt.edu.cn
-# 背景
-为了方便讲解，以下都以Linux x86-64使用的标准进行讲解。Windows中采用的Calling Convention和这里略有不同，因此建议使用docker环境进行试验和学习。对于Arm64环境的同学，建议是换到一台有x86-64环境的PC。
+# Accelerate matrix multiplication
 
-## x86-64 寄存器
-x64提供了以下通用寄存器。每个寄存器都可以访问其32-,16,8-bit的寄存器。
-![registers](img/registers.png)
-其中部分寄存器还具有特殊的含义，例如%rsp通常作为栈指针，%rbp作为栈帧基指针,%rax作为返回值等等。
+## 截止：2024.11.17 23:59
 
-除了上面的寄存器外，还有一些特殊寄存器。例如%rip，%cs,%gs等等。这些寄存器主要和程序控制流相关，一般有特殊的指令进行修改。例如%rip寄存器是程序计数寄存器，用于指示当前执行到第几条指令。使用jmp指令可以跳转到某个地址，也就是改变%rip寄存器的值。
+助教 wxg@bupt.edu.cn
 
-## Linux x64 stack frame
-![stack frame](img/x64_frame_nonleaf.png)
-```c
-long myfunc(long a, long b, long c, long d,
-            long e, long f, long g, long h)
-{
-    long xx = a * b * c * d * e * f * g * h;
-    long yy = a + b + c + d + e + f + g + h;
-    long zz = utilfunc(xx, yy, xx % yy);
-    return zz + 20;
-}
-```
-上图是一个C函数的栈帧。
+## 任务和评分
 
-栈帧是计算机内存中用于支持程序执行中的函数或过程调用的数据结构。当一个函数或过程被调用时，一个新的栈帧就会被创建并添加到程序的调用栈的顶部。
+矩阵乘法是一个有着广泛应用的基础算法，比如神经网络的核心计算任务就是矩阵乘法，因此如何提升矩阵乘法的效率是一个值得深入思考的问题。
 
-每一个栈帧常常包含以下几个部分：
-* 函数参数：当一个函数被调用时，它的参数（如有的话）会在内存中被保存进新的栈帧。
-* 返回地址：栈帧也保留函数调用完成后的返回地址。这样，在函数执行完后，程序就能知道要跳回哪里去继续执行。
+本次Lab中我们就来运用课上的知识来代码实现加速矩阵乘法，并且将最终的实现代码提交至评测平台，顺利通过平台上的测试。
 
-* 局部变量：函数中定义的任何局部变量都存储在其栈帧中。
+加速的方式有很多，你提交至评测系统的代码实现仅限于提高cache命中率、多线程(我们只会分配32个核心给你的程序，请合理利用多线程)两个方面的加速。
 
-* 帧指针：这是一个指向当前栈帧的指针，可用于快速访问栈帧中的数据。
+此外，鼓励大家自行探索更多的加速方法（见bonus）。
 
-栈是由**高地址向低地址**增长的。每次压栈，rsp = rsp - 8。
+### 准备环境
 
-在调用另一个函数时，首先编译器会把参数传入寄存器，当参数多于6个时，多余的参数会被放入栈中，例如上图的h，g。 
+easy_lab2沿用在easy_lab1中搭建好的docker容器Linux环境。本次lab使用c++，需要在终端执行以下指令，安装g++：
 
-然后，执行call指令，跳转到函数，并在栈中保存函数地址。当进入新函数时，编译器会把%rbp压入栈中，然后把新的%rbp指向栈顶。
-
-最后，编译器会为临时变量xx,yy,zz预留空间。
-
-> 栈顶通常还会有一块red zone，但在linux中被忽略[[4]](#参考).。red zone通常用来作为函数临时数据的存放位置。[[5]](#参考)
-## Calling Convention
-![calling](img/calling.png)
-* 用户级应用程序依次用以下寄存器来传递参数：%rdi、%rsi、%rdx、%rcx、%r8 和 %r9（指的是参数为指针或者8字节以下的整数类型的一般情况）。 
-> 在Windows x64中，%rdx,%rcx分别是第一个和第二参数的寄存器
-* %rax通常作为返回值寄存器
-* caller-saved表示调用者保存，callee-saved表示被调者保存。%rbx,%rsp,%rbp,%12-%15的寄存器均需要被调用者提前保存。调用结束后再恢复这些寄存器（如果有用到）。此外，还有一些上图未提及的寄存器需要保存，例如%rip,%xmm0还有一些标志寄存器等等。
-* 因此，理论上来说，在一个单线程的只执行整数运算的简单程序中，我们只需要保存上述的寄存器即可保存上下文。
-
-## 汇编代码
-下面简单介绍一下后面所用到的汇编代码。
-
-* `pop A`： 把原先rsp指针指的内存的值放到A中，然后rsp=rsp+8
-* `movq A B` : 
-    * 其中(A) 表示把A当成指针，对A指向地址的内存
-    * NUMBER(A),表示(A+NUMBER)，也就是A+NUMBER处的内存
-* `push A`: 把A的值放到原来rsp处，然后rsp=rsp-8
-* `ret`: pop A,jmp A。pop出一个地址，然后跳转到那个地址去执行。在函数调用时会有返回地址，调用结束后会回到那个返回地址
-
-
-
-# 实验环境搭建
-实验环境要求下面几个部分：
-1. x86-64 linux环境
-2. gcc,make
-
-因此如果你有linux环境，例如wsl或者云服务器，可以直接在上面进行实验。
-
-为了方便大家进行实验，我们搭建了一个devcontainer。只有windows的同学仅需要安装docker和vscode devcontainer插件即可。
-
-PS: github上的code space也可以用。但我没有测试过。
-
-## 使用devcontainer
-### 安装vscode
-[Windows](https://vscode.cdn.azure.cn/stable/1ad8d514439d5077d2b0b7ee64d2ce82a9308e5a/VSCodeUserSetup-x64-1.74.1.exe) 
-
-[Mac OS](https://vscode.cdn.azure.cn/stable/e8a3071ea4344d9d48ef8a4df2c097372b0c5161/VSCode-darwin-universal.zip)
-### 安装dev container插件
- 在vscode插件市场安装devcontainer:
-![devcontainer](img/devcontainer.png)
-
-> 如果你在Windows下使用dev container的插件，并且安装了wsl，可能需要手动将插件版本等级降级到v0.266.1
-> 
-> [参考](https://github.com/microsoft/vscode-remote-release/issues/8172)
-> ![downgrade](img/install_another_version.png)
-> 选择较低版本后，reload window即可。
-
-### 安装Docker
-* 可以参考这个链接: [安装docker](https://github.com/BUPT-OS/os_lab/tree/lab2#docker%E5%AE%89%E8%A3%85%E5%8F%8A%E6%8B%89%E5%8F%96%E4%BB%A3%E7%A0%81)
-* 也可以在vscode里按ctrl+shift+P,输入`install`
-#### troubleshooting
-![docker_install](img/docker_install.png)
-
-如果安装遇到上面问题，可能需要安装一下wsl2。[一个参考](https://blog.csdn.net/qq_43636384/article/details/128453416)
-
-### git clone 本项目
-#### git 安装
-[链接](https://registry.npmmirror.com/-/binary/git-for-windows/v2.42.0.windows.2/Git-2.42.0.2-64-bit.exe)
-
-#### clone
-
-* 也可以下载，最好是clone，这样有更新就可以拉取到了。
 ```bash
-git clone https://github.com/BUPT-OS/easy_lab.git
-
-# git clone https://gitee.com/gitee-yyx2020211226/easy_lab.git
+# 安装g++
+apt-get update && apt-get install g++
 ```
-### 使用dev container启动
-打开项目文件夹
-![Alt text](img/open_folder.png)
 
-打开的时候`.devontainer`要在第一层文件夹：
+### 拉取代码
 
-![container](img/container.png)
+easy_lab2在本仓库的lab2分支上，gitee链接：https://gitee.com/ruiqurm/easy_lab/tree/lab2/
 
-按ctrl+shift+P或者F1，输入reopen.. 选择下面这个选项即可使用dev container
-![open](img/open.png)
+由于lab2分支和lab1分支之间没有共享的commit历史信息，为了避免一些冲突，直接使用以下命令拉取分支，然后就可以在easy_lab2目录下开始做lab了。
 
-# 用户态线程
-下面你需要实现一个简单的有栈协程。
-
-有栈协程可以在执行期间保存完整的函数调用栈状态，这意味着当协程被暂停时，它可以在稍后恢复执行，继续执行被中断的地方。
-> 与有栈对应的是无栈协程。无栈协程并不是不需要栈，而是用的就是默认的栈。它的局部变量保存在堆分配内存上，因此每次切换实际上只需要管理控制流。对于无栈协程，它每次切换接近于函数调用。
-> 我们这里实现的有栈协程和内核中线程的实现更为相近。感兴趣的话可以阅读其他教学内核中关于线程切换部分。
-
-我们已经提供了一个简单的代码框架在：`uthread.h`和`uthread.c`。
-
-具体来说，你需要实现这样的用户态线程框架：
-
-* 用户程序调用`uthread_create`创建一个协程，放入调度队列中。
-* 创建完全部的协程后，主线程调用`schedule()`阻塞进入调度程序，开始执行各个协程。调度采用FIFO(先进先出)的顺序
-* 线程开始执行的时候，首先跳转到函数`_uthread_entry`,然后才进入对应的函数
-* 当协程中的函数调用`uthread_yield`时，控制权转让给调度器
-* 当调度器执行`uthread_resume`时，会重新在中断的地方开始执行
-* 当调度器发现函数执行结束时，会调用`thread_destroy`销毁结构体。
-
-
-
-## 你的任务
-修改代码，通过测试recursion.c，simple.c和pingpong.c
-
-执行
+```bash
+# 将lab2分支拉取到easy_lab2目录下
+git clone -b lab2 https://gitee.com/ruiqurm/easy_lab.git easy_lab2
+# 或者
+git clone -b lab2 https://github.com/rust-real-time-os/easy_lab.git easy_lab2
 ```
-make 
+
+### 提交方式
+
+本次Lab代码的实现只在multiply.cpp文件中完成，只需要在该文件做修改即可，完成后把该文件和报告提交到评测平台，不需要生成patch。
+
+### 评分规则
+
+本次作业的分数分为两部分：代码（70%）和报告（30%）。
+
+报告的内容：简单阐述你的实现，可以对比不同的参数（比如分块大小、线程个数）所带来的不同程度的性能提升，实验中遇到的困难，你的思考等等。
+
+代码的评分分为两部分：正确性测试和加速的效果测试。
+
+正确性的测试就是验证计算结果的正确性。为了避免一些无聊的边界条件的判断，简化实现，保证测试平台中的N、M、P都是可以被4整除的。
+
+加速效果的评判方式是计算运算的时间是否可以接受。一个衡量处理器的浮点计算指标是Flops，即每秒的浮点数运算次数，本质上也是在判断运算时间的长短，计算方式非常简单，可以通过阅读代码了解。平台上我们测试的样例和接受的条件如下表，如果你的矩阵乘法不满足可接受的条件，那么就会被判定为**Time limit exceed**。通过测试样例即得到相应的分数。
+
+|矩阵大小|运行时间上限(us微秒)|GFlops下限|测试样例分数|
+|-----|-----|-----|-----|
+|(512\*512) x (512\*512)|26843|10|10|
+|(1024\*1024) x (1024\*1024)|89478|24|12|
+|(2048\*2048) x (2048\*2048)|505290|34|14|
+|(2560\*2560) x (2560\*2560)|838860|40|16|
+|(3072\*3072) x (3072\*3072)|1317774|44|18|
+
+> 由于大家本地机器和评测平台的服务器的配置可能不同，所以在tips部分中给出了服务器的CPU、cache的相关信息，可以根据这些信息作为参数设定的参考。
+
+## 基础知识讲解
+
+这里仅简单介绍一下，给大家提供一个基本的方向，请重点思考提高缓存命中率、多线程这两种方法的结合，也可以通过阅读后面的学习资料得到更多的加速思路。
+
+### cache
+
+CPU的计算速度比主存的读写速度快近百倍，cache为CPU提供了高速的存储访问，低的缓存命中率会让算法的耗时大大增加，因此提高cache的命中率是一个非常有效的方法。
+
+计算机在访问数组的时候并不是逐个从内存中访问的，而是以cacheline为单位去访问，这就是利用了访存的空间局部性。由于CPU的cache是有限的，当cache满了之后如果还要有新的cacheline进来，就需要把旧的cacheline驱逐出去，所以如果连续访问同一个cacheline中的数据就会比零散的访问不在同一个cacheline的数据要快很多。所以基于上面的性质，我们可以考虑比较简单的加速思路：
+
+* 调整计算的顺序，这就是常常用来举例的ijk和ikj的顺序调整
+* 把矩阵进行分块，使得小块内的数据都在cache中
+* 进行分块后，由于块内行与行之间、列与列之间仍然是不连续的，进行数据重排
+
+### 多线程
+
+并行化一般能够带来和CPU核心数量成比例的加速，把任务拆分成多个子任务进行并行化计算会给性能带来很高的提升。
+
+需要注意并行化的多个线程之间的公共数据的读写应该是线程安全的，不然会导致计算结果不正确。
+
+## Lab代码介绍
+
+Lab相关的代码在./src/目录下。
+
+main.cpp是测试的主要逻辑。矩阵的大小通过宏定义的方式定义在main.h中，使用g++进行编译的时候可以通过-D参数进一步的更改宏定义中的值，从而改变矩阵的形状。matrix.h和matrix.cpp中给出了一个最基本的矩阵乘法实现，用来测试你的计算结果是否正确（判断正确性的数据范围较小）。
+
+你所实现的代码应该全部都在multiply.cpp文件中完成。
+
+### 实现matrix_multiplication函数
+
+multiply.cpp文件中最初只包含了matrix_multiplication这一个函数，你可以在该文件中`#include`头文件或者定义其他数据结构、函数等，测试时我们只会调用你实现的matrix_multiplication进行测试。
+
+### 本地测试方法
+
+完成代码后，可以通过下面的指令进行编译，注意如果有使用头文件thread或者pthread.h，需要添加-pthread（如果有使用SSE3指令集，需要添加-mfma，见bonus）。
+
+```bash
+# 测试正确性
+# 会打印出计算结果是否正确
+g++ main.cpp matrix.cpp multiply.cpp -std=c++1z -pthread -mfma -o main -D JUDGE_RIGHT -D N=280 -D M=8 -D P=124
 ```
-即可编译uthread.c和所有测试。
 
-使用
+```bash
+# 测试时间
+# 会打印出运算时间和GFlops
+g++ main.cpp matrix.cpp multiply.cpp -std=c++1z -pthread -mfma -o main -D N=1024 -D M=1024 -D P=1024
 ```
-make tests
+
+编译完毕，运行./main文件，查看运行的log信息。
+```bash
+# 你可以使用taskset -c 0-n ./main来限制程序使用的核心数
 ```
-运行测试。
 
+## bonus
 
+思考与加分项：
 
-你可能主要需要修改下面的函数：
-* 初始化系统：`init_uthreads`
-* 初始化每个用户态线程：`uthread_create`
-* 调度: `schedule`
-* 切换线程: `uthread_yield`和 `uthread_resume`
-* _uthread_entry : 函数的入口
+1. 在Intel的SSE3指令集中，包含了一个神奇的指令：可以在一个时钟周期内完成两次浮点数的乘法和两次浮点数的加法。在提升了cache命中率和采用多线程计算后，这个指令可以很好的帮助我们进一步地提升矩阵乘法的性能，并且使用非常简单，可以参考[1]、[2]、[3]。请给出使用SSE3指令集前后的性能对比和代码。
 
-除此以外，你可能还需要一些helper函数，例如调度时的FIFO，你可以用数组实现也可以用链表实现（建议用链表）。
+2. 为什么有时候多线程性能反而不如单线程？在什么情况下会导致这样的情况？
 
-你可以随意修改uthread.c/h和switch.S的其他部分。只要最终能编译并通过测试即可。
+3. 矩阵乘法是否会出现频繁的内存缺页？如何解决这样的问题？
 
-## Guideline
-如果你不知道从哪里开始，你可以参考下面的建议。
+4. 尝试使用GPU进行矩阵运算，CPU和GPU运算各有什么特点？为什么GPU矩阵运算远远快于CPU？
 
-1. 阅读`switch.S`的代码
-2. 阅读`struct context`的成员变量，看如何使用该结构体与`thread_switch`交互
-3. 阅读`demo.c`，理解`thread_switch`的使用方式
-4. 阅读`uthread.c`上面的框架，看`_uthread_entry`需要传哪些参数。
+这部分内容有精力的同学可以将你的答案和代码写在提交的报告里。
 
-在阅读的过程中，你可能会遇到很多没学过的知识，比如你可能读不明白汇编代码的含义。这时我们建议用chatGPT之类的大模型工具来辅助快速上手学习。
+## tips
 
-例如，你可以问它这段汇编代码的含义
-![llm_example](img/llm_example.png)
+服务器上的矩阵是行主序存储（row-major）方式，CPU、缓存信息如下：
 
+![](img/CPU_info.png)
 
-## TIPS
-* 注意栈需要16字节对齐，下面的代码可以帮你对齐：
-```
-address & -16L
-```
-完成对齐后，还需要将栈指针向下移动一个字长（-8字节），让它8字节对齐但是不16字节对齐（这和我们的汇编部分的实现有关，后面切换线程进入新函数会压入一个%rbp，使得栈指针16字节对齐）。如果后面发现segment fault，可能是这里有问题
-* 注意栈是向下增长的，因此你初始化时栈指针应该是在高地址的
-* 对于线程切换，我们提供了一段汇编代码在`switch.S`中。你也可以使用ucontext.h或者自己用汇编实现一段逻辑。
-* 每个线程的入口都是`_uthread_entry`，然后在内部再去调用对应的线程函数。
-* 注意设置标志位，以及利用标志位检查需要运行的线程。
-* `_uthread_entry`结束后，需要回到调度器，因此你需要调用thread_switch
-* 你可以使用全局`current_thread`和`main_thread`来保存当前执行的主线程和用户态线程的上下文。
-* 你可以使用gdb来调试bug
-## Challenge 
-* thread_swtich里只保存了整数寄存器的上下文。如何拓展到浮点数？
-* 上面我们只实现了一个1 kthread :n uthread的模型，如何拓展成m : n的模型呢
-* 上述的实现是一个非抢占的调度器，如何实现抢占的调度呢？
-* 在实现抢占的基础上，如何去实现同步原语（例如，实现一个管道channel）
+![](img/cacheline_size.png)
 
-# 提交方式与评分
-你需要提交你的代码以及一份简单的报告。
+解释一下第二章图中的cache信息：
 
-报告的内容包括：简单阐述你的实现，实验中遇到的困难，你的思考等等，报告数百字即可。
+1. 所有数据的单位均为Byte
+2. 一级缓存分为指令缓存和数据缓存两种，分别使用ICACHE、DCACHE表示
+3. SIZE指该级缓存的总大小
+4. LINESIZE表示该级缓存的cacheline大小，也就是该级缓存向低一级缓存访问时一次性抓取的数据量大小
+5. ASSOC指该级缓存组相联的组数
 
-报告占比30%,实验70%
+## 参考
 
-提交方式为暂时为生成一个patch，在[平台](http://10.161.28.28:8765/index)(使用校园网访问)提交。如何生成patch,详见[提交](https://github.com/rust-real-time-os/os_lab/tree/lab1#%E6%8F%90%E4%BA%A4)。如果出现提交问题，可以参考zulip上面的[汇总](https://rros.zulipchat.com/#narrow/stream/376116-general/topic/.5B.E6.8F.90.E4.BA.A4.E9.94.99.E8.AF.AF.E8.AF.B7.E5.85.88.E7.9C.8B.E6.AD.A4.E8.B4.B4.5D)
+[1] wiki：https://github.com/flame/how-to-optimize-gemm/wiki
 
+[2] SSE指令集学习笔记：https://packagewjx.github.io/2018/11/12/sse-note/
 
-# 参考
-1. [AMD64 Architecture Programmer’s Manual, Volume 1: Application Programming.](https://www.scs.stanford.edu/05au-cs240c/lab/amd64/AMD64-1.pdf)
-2. [X86-64 Architecture Guide](http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html)
-3. [mit 6.s081 user level thread](https://pdos.csail.mit.edu/6.S081/2020/labs/thread.html)
-4. [System V Application Binary Interface](https://refspecs.linuxbase.org/elf/x86_64-abi-0.99.pdf) 
-5. [Stack frame layout on x86-64](https://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/)
+[3] Intel指令集：https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#ig_expand=4034,4074,4009
+
+[4] 学习资料：http://giantpandacv.com/project/%E9%83%A8%E7%BD%B2%E4%BC%98%E5%8C%96/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%BC%96%E8%AF%91%E5%99%A8/%E3%80%90TVM%20%E4%B8%89%E4%BB%A3%E4%BC%98%E5%8C%96%E5%B7%A1%E7%A4%BC%E3%80%91%E5%9C%A8X86%E4%B8%8A%E5%B0%86%E6%99%AE%E9%80%9A%E7%9A%84%E7%9F%A9%E9%98%B5%E4%B9%98%E6%B3%95%E7%AE%97%E5%AD%90%E6%8F%90%E9%80%9F90%E5%80%8D/
