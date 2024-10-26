@@ -2,7 +2,7 @@
 
 ## 截止：2024.11.17 23:59
 
-助教 wxg@bupt.edu.cn
+助教 wangxinge@bupt.edu.cn
 
 ## 任务和评分
 
