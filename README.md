@@ -41,7 +41,8 @@ due: 2024/12/26 23:59:59
 printf对内存模型的影响集中在两个方面
 
 1. 打印内容前，会创建一个buffer作为打印内容的缓存，这个buffer的大小由具体的实现而定，是不确定的。助教在x86_64的机器上测试，得出的结果是1024字节。这个buffer的地址是在堆上的，所以对于。
-2. 打印内容时，`printf`函数会产生一个`write` syscall，会对`printf`的buffer进行输出，这个过程会影响到`printf`的buffer的内容。
+2. 打印内容时，`printf`函数会产生一个`write` syscall，会对`printf`的buffer进行输出，这个过程会影响到`printf`的buffer的内容，把buffer中的内容刷新掉，等待下一次printf重新写入。
+3. 多次printf可以复用同一个buffer，当需要打印的内容超出buffer的大小时会重新申请buffer。
 
 ## lab实操
 
