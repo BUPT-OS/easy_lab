@@ -1,6 +1,6 @@
 # User Level Thread
-## 截止: 2024.10.29 23:59
-助教 yyxrust@bupt.edu.cn
+## 截止: 2025.11.12 23:59
+助教 sunzitai_1832@bupt.edu.cn
 # 背景
 为了方便讲解，以下都以Linux x86-64使用的标准进行讲解。Windows中采用的Calling Convention和这里略有不同，因此建议使用docker环境进行试验和学习。对于Arm64环境的同学，建议是换到一台有x86-64环境的PC。
 
@@ -108,7 +108,7 @@ PS: github上的code space也可以用。但我没有测试过。
 ```bash
 git clone https://github.com/BUPT-OS/easy_lab.git
 
-# git clone https://gitee.com/gitee-yyx2020211226/easy_lab.git
+# git clone https://gitee.com/stevenFreeTo/easy_lab.git
 ```
 ### 使用dev container启动
 打开项目文件夹
@@ -209,7 +209,7 @@ address & -16L
 
 报告占比30%,实验70%
 
-提交方式为暂时为生成一个patch，在[平台](http://10.161.28.28:8765/index)(使用校园网访问)提交。如何生成patch,详见[提交](https://github.com/rust-real-time-os/os_lab/tree/lab1#%E6%8F%90%E4%BA%A4)。如果出现提交问题，可以参考zulip上面的[汇总](https://rros.zulipchat.com/#narrow/stream/376116-general/topic/.5B.E6.8F.90.E4.BA.A4.E9.94.99.E8.AF.AF.E8.AF.B7.E5.85.88.E7.9C.8B.E6.AD.A4.E8.B4.B4.5D)
+提交方式为暂时为生成一个patch，在[平台](http://10.161.28.28:8765/index)(使用校园网访问)提交。如何生成patch,详见[提交](https://github.com/BUPT-OS/os_lab/tree/lab1#%E6%8F%90%E4%BA%A4)。如果出现提交问题，可以参考zulip上面的[汇总](https://rros.zulipchat.com/#narrow/stream/376116-general/topic/.5B.E6.8F.90.E4.BA.A4.E9.94.99.E8.AF.AF.E8.AF.B7.E5.85.88.E7.9C.8B.E6.AD.A4.E8.B4.B4.5D)
 
 
 # 参考
