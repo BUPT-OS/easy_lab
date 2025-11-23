@@ -31,6 +31,7 @@
 
 ```bash
 # 如果没有easy_lab的仓库代码, 则需要拉取仓库, 然后切换分支
+# 如果连接不了github，也可以使用lab1提供的gitee仓库
 git clone https://github.com/BUPT-OS/easy_lab.git
 
 # 如果在本地已经有了easy_lab的仓库代码, 只需要在仓库目录下拉取easy_lab3的分支即可
