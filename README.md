@@ -1,115 +1,157 @@
 # magic print
 
 - [magic print](#magic-print)
-  - [lab任务与评分](#lab任务与评分)
-    - [lab讲解](#lab讲解)
-    - [lab前置操作（包括如何准备环境，如何拉取lab的代码，如何提交作业）](#lab前置操作包括如何准备环境如何拉取lab的代码如何提交作业)
-    - [lab的评分规则和due](#lab的评分规则和due)
-  - [lab基础知识讲解](#lab基础知识讲解)
-    - [`printf`对内存模型的影响](#printf对内存模型的影响)
-  - [lab实操](#lab实操)
+  - [lab内容](#lab内容)
+    - [背景](#背景)
+    - [环境配置](#环境配置)
+    - [代码说明](#代码说明)
     - [任务1](#任务1)
-    - [lab测试方法](#lab测试方法)
+    - [任务2](#任务2)
+    - [测试方法](#测试方法)
+    - [bonus: 任务3](#bonus-任务3)
+  - [提交方式、评分规则、deadline](#提交方式评分规则deadline)
+  - [基础知识引导](#基础知识引导)
+    - [meta-data](#meta-data)
+    - [cout的buffer](#cout的buffer)
+    - [gdb调试](#gdb调试)
   - [引用](#引用)
 
-## 截止: 2024.12.26 23:59
-助教 dujiajun.1@bupt.edu.cn
+## 截止: 2025.12.24 23:59
+助教 jiajundu@bupt.edu.cn
 
-## lab任务与评分
+## lab内容
 
-### lab讲解
+### 背景
 
-`print`在各个语言中都是必不可少的一个函数。例如，在C语言中，`printf`常常被用来输出一些信息或者用来`debug`，不承担代码逻辑，在C++中，`cout`承担类似的角色，由于大家没有学过C，下面的例子以C++说明，`printf`的实际内容为`cout`。。但是作为一个代码中的`隐藏第六人`，却会影响代码的执行结果，比如，经常会遇到注释或者增加一个`printf`，导致程序执行结果错误或者`segment fault`。这些诡异的bug都是因为对`printf`在内存模型的影响不够了解，我们这个作业就用一个例子浅探一下`printf`的世界。
+`print`在各个语言中都是必不可少的一个函数。例如，在C语言中，`printf`常常被用来输出一些信息或者用来`debug`，在C++中，`cout`承担类似的角色，但是作为一个代码中的`隐藏第六人`，却会影响代码的执行结果，比如，经常会遇到注释或者增加一个`cout`，导致程序执行结果错误或者`segment fault`。这些诡异的bug都是因为对`cout`在内存模型的影响不够了解，我们这个作业就用一个简化后的例子浅探一下`cout`的世界。
 
-### lab前置操作（包括如何准备环境，如何拉取lab的代码，如何提交作业）
+### 环境配置
 
-1. 准备配置环境
-本系列实验为了保证环境的一致性，提供docker镜像作为实验环境，大家应该在之前的lab里面已经把docker配置好了，如果还没有的话，可以通过这个[链接](https://github.com/rust-real-time-os/os_lab/tree/lab2#docker%E5%AE%89%E8%A3%85%E5%8F%8A%E6%8B%89%E5%8F%96%E4%BB%A3%E7%A0%81)配置docker。easy_lab3沿用easy_lab1/2的docker镜像。
-2. 如何提交作业
-本次实验的代码答案和文档需要提交到评测平台，代码提交的方式为patch，文档提交的格式为pdf，和lab1的方法一致，具体说明参照这个[链接](https://github.com/rust-real-time-os/os_lab/tree/lab1#%E6%8F%90%E4%BA%A4)。
+本系列实验为了保证环境的一致性，提供docker镜像作为实验环境，大家应该在之前的lab里面已经把docker配置好了，直接在容器环境里把easy_lab3的分支拉取下来即可。注意仓库中可能会有新的commit，请拉取到最新的lab3代码。可以参考下面的命令行拉取代码。
 
-### lab的评分规则和due
+```bash
+# 如果没有easy_lab的仓库代码, 则需要拉取仓库, 然后切换分支
+git clone https://github.com/BUPT-OS/easy_lab.git
 
-评分规则：patch 50分；文档50分；
+# 如果在本地已经有了easy_lab的仓库代码, 只需要在仓库目录下拉取easy_lab3的分支即可
+git fetch origin lab3:lab3
 
-due: 2024/12/26 23:59:59
+# 拉取lab3的最新代码
+git pull origin lab3:lab3
 
-## lab基础知识讲解
+git checkout lab3
+```
 
-### `printf`对内存模型的影响
+如果还没有配置docker容器环境的话，可以通过这个[链接](https://github.com/rust-real-time-os/os_lab/tree/lab2#docker%E5%AE%89%E8%A3%85%E5%8F%8A%E6%8B%89%E5%8F%96%E4%BB%A3%E7%A0%81)配置docker，easy_lab3沿用easy_lab1/2的docker镜像。
 
-printf对内存模型的影响集中在两个方面
+### 代码说明
 
-1. 打印内容前，会创建一个buffer作为打印内容的缓存，这个buffer的大小由具体的实现而定，是不确定的。助教在x86_64的机器上测试，得出的结果是1024字节。这个buffer的地址是在堆上的，所以对于。
-2. 打印内容时，`printf`函数会产生一个`write` syscall，会对`printf`的buffer进行输出，这个过程会影响到`printf`的buffer的内容，把buffer中的内容刷新掉，等待下一次printf重新写入。
-3. 多次printf可以复用同一个buffer，当需要打印的内容超出buffer的大小时会重新申请buffer。
+在lab3的分支中含有`print.cpp`文件，该文件包含了easy_lab3需要分析的全部代码。这段包含一个很奇怪、有趣的现象：我们在23行通过调用`cout`打印了一个字符串，如果我们在程序中注释掉这一行，程序在运行时就会崩溃，如果解开注释，程序就能够执行成功。
 
-## lab实操
-
-这里我们用一个简化后的`printf`使用的例子来作为lab，说明实际例子中`printf`的影响。
-
-> 由于我们在例子中对`printf`的假设依赖于一些未定义行为，所以这个例子可能在不同的机器上有不同的结果，我们在`x86_64` Linux 5.4.0-150的机器上测试过，可以得到我们想要的结果。
+你可以参考下面[测试方法](#测试方法)一节来验证这个奇怪的现象。
 
 ### 任务1
 
-1. 背景：在给出的`print.cpp`中，我们在23行打印了一个字符串，如果我们在程序中注释掉这一行，我们就会出现一个`segment fault`，如果解开注释，程序就会执行成功。大致原因是我们在`cout`函数中会在堆上隐式声明一个`char`数组，这个数组的大小是`1024`，我们在`main`函数的不同位置调用`cout`，这个数组的位置在堆上也是不确定的，如果由于程序中的隐含错误使用了这个数组就会导致`segment fault`。
+很显然，这个奇怪的现象背后肯定有一个bug在作怪。
 
-```C++
-#include <iostream>
+所以，easy_lab3的第一个任务就是：**在注释掉23行的情况下，找出导致程序崩溃的bug，并且修复它，使得程序可以正常运行**。
 
-using namespace std;
+> 完成任务1其实只需要更改`print.cpp`中一处即可。
 
-#define array_number 64
+在确定bug已经被成功修复之后，你需要生成patch，提交到评测平台来验证bug是否已经被修复。关于生成patch，可以参考[链接](https://github.com/rust-real-time-os/os_lab/tree/lab1#%E6%8F%90%E4%BA%A4)。
 
-int matrix[array_number][array_number];
+### 任务2
 
-int **double_array(size_t n) {
-    int **result = new int*[8];
+本次lab的本意其实是想让大家理解堆内存、以及`cout`对于堆内存的影响，而方式就是通过分析任务1中的bug。
 
-    for (int i = 0; i < n; ++i) {
-        result[i] = matrix[i];
-        for (int j = 0; j < n; ++j){
-            result[i][j] = j;
-        }
-    }
+任务2中你需要在评测平台上提交一个pdf格式的实验报告，内容包括：
 
-    return result;
-}
+1. 从堆内存角度，在注释掉23行`cout`后，解释bug产生的原因、以及程序崩溃的原因
+2. 从堆内存角度，说明为什么23行`cout`在解开注释的情况下可以使得程序正常运行
 
-int main() {
-    // cout<<"A magic print! If you comment this, the program will break."<<endl;
-    int **result = double_array(array_number);
-    
-    for (int i = 0; i < array_number; ++i) {
-        cout<<"print address of result[i] "<<&result[i][0]<<endl;
-        for (int j = 0; j < array_number; j++) {
-            result[i][j] = j;
-            cout<<"print content of result[i][j] "<<result[i][j]<<endl;
-        }
-    }
-    free(result);
-}
+由于本次实验涉及的内容比较隐秘，所以我们在本文后半部分添加了[基础知识引导](#基础知识引导)章节，旨在帮助大家明确思路并引导正确的思考方向。
+
+> 对于任务2来说，大家注意思考程序的堆上都分配了哪些内存、这些内存之间的位置顺序是怎么样的
+
+### 测试方法
+
+在`print.cpp`文件的同级目录下，我们提供了一个`Makefile`来编译、运行，在修改`print.cpp`之后，可以通过命令运行`make print`来进行测试，如果执行成功，则会输出`Program execution successful.`，如果执行失败，则会输出`Program execution failed.`。
+
+### bonus: 任务3
+
+在任务1和任务2的基础上，我们添加了一个bonus的任务供大家思考。添加一行代码（可以查看`print_bonus.cpp`文件）：
+
+```cpp
+if(i == 8 || i == 9) continue;
 ```
-2. 需求：
-   - 本次实验需要大家在注释掉`cout<<"A magic print! If you comment this, the program will break."<<endl;`后，修复这个段错误的bug(只需要修改一处)；
-   - 然后提交一个文档，具体说明你怎么找到的这个修复方法，并且阐述为什么会出现这个问题，最好能写一段代码基于内存布局来证明为什么23行的`cout`可以修复这个bug。（注意思考程序中堆上都分配了哪些内存、这些内存之间的位置顺序）
 
+此时你需要回答以下问题：
 
-### lab测试方法
+1. 程序在运行的过程中会有输出吗?
+2. 更改之后的程序可以正常运行吗?
+    * 如果可以正常运行，解释为什么在bug依然存在的情况下可以正常运行?
+    * 如果不可以正常运行，解释导致程序崩溃的原因是什么?
+
+选择做bonus的同学，把对上面问题的回答写在pdf文档里一起提交到评测平台即可。
+
+## 提交方式、评分规则、deadline
+
+提交方式：将patch和pdf文档提交到评测平台（http://10.161.28.28:8765/ ）。
+
+评分规则：patch 50分；文档50分。
+
+deadline: 2025/12/24 23:59:59
+
+## 基础知识引导
+
+### meta-data
+
+在c/c++中，用户程序使用`malloc`或者`new`来向glibc中的内存分配器申请堆内存，如果内存分配器维护的空闲内存块可以满足请求，则可以直接分配成功，如果不能满足请求，则内存分配器会首先通过系统调用向内核请求更多内存，然后再完成分配。
+
+为了方便维护堆内存的信息，glibc的内存分配器（以及其他大多数的内存分配器实现）会在用户指定的堆内存大小的基础上多分配一块堆内存，这一块多余的内存区域就用来保存该堆内存的信息（比如块大小等等），被称为元数据（meta-data）。比如用户如果指定需要分配32B，内存分配器并不仅仅分配32B，而是会分配的大小是32+sizeof(meta-data)，前面sizeof(meta-data)的区域用来保存元数据，后面部分以指针的形式返回给用户使用。
+
+为了验证上述实现，我们在`clue_to_you`目录下给出了`a.cpp`，你可以编译、运行来看看程序的输出是怎么样的，你还可以根据结果来计算出在你的运行环境中元数据的大小是多少字节。
+
+另外，我们还提供了`b.cpp`，你可以编译、运行，来看看空闲块的元数据被破坏后还能不能继续`malloc`。
 
 ```bash
-g++ print.cpp -o print
-./print
+# Makefile中也提供了clue_b、clue_c、clue_d的命令
+make clue_a
 ```
 
-或者
+关于glibc中其他更多的细节还可以阅读引用[1]，也可以尝试阅读glibc的内存分配器源代码[2] [3]。
 
-```bash
-make
+### cout的buffer
+
+这里我们给出两点比较重要的内容：
+
+1. `cout`在执行过程中，会在程序的堆上分配一块堆内存当作缓冲区；
+2. 只要缓冲区能够被及时刷新（比如成功打印到终端等等）、缓冲区没有溢出，`cout`的缓冲区在多次`cout`之间是可以重复利用的；
+
+针对这两点我们也给了两段代码供大家验证，分别是`clue_to_you/c.cpp`和`clue_to_you/d.cpp`。另外你还可以根据这两段程序的执行结果计算出`cout`的缓冲区大小。
+
+### gdb调试
+
+gdb是一个功能非常强大的代码调试工具，因为本次lab的关注点在于内存，所以学会使用gdb观测程序的内存状态是非常有用的。
+
+gdb中提供了一个`x`命令可以把内存的信息打印出来，比如`x/2g a`的含义就是：获取a指针指向的地址后面的内存，以8个字节为单位，输出前两个，打印的结果就会如下：
+```
+(gdb) x/2g a
+0x5d86e7901ea0: 0x0000000000000000      0x0000000000000031
 ```
 
-如果运行没有段错误，即为修复成功
+甚至，你还可以打印`cout`的缓冲区内存信息，来查看内容是不是已经打印出来的内容。
+
+对于其他比较常用的gdb指令，可以阅读引用[4]或者gdb的官方文档。
 
 ## 引用
 
-[1] [printf修复bug的例子](https://www.reddit.com/r/C_Programming/comments/p10ol6/printf_before_memory_allocation_fixes_bug_whats/)
+[1] glibc文档: https://sourceware.org/glibc/wiki/MallocInternals
+
+[2] glibc的_int_free函数：https://elixir.bootlin.com/glibc/glibc-2.31/source/malloc/malloc.c#L4154
+
+[3] glibc的_int_malloc函数：https://elixir.bootlin.com/glibc/glibc-2.31/source/malloc/malloc.c#L3512
+
+[4] gdb cheat sheet: https://darkdust.net/files/GDB%20Cheat%20Sheet.pdf
+
+[5] reddit的相关讨论：https://www.reddit.com/r/C_Programming/comments/p10ol6/printf_before_memory_allocation_fixes_bug_whats/
