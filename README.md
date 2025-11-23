@@ -76,7 +76,7 @@ git checkout lab3
 
 ### 测试方法
 
-在`print.cpp`文件的同级目录下，我们提供了一个`Makefile`来编译、运行，在修改`print.cpp`之后，可以通过命令运行`make print`来进行测试，如果执行成功，则会输出`Program execution successful.`，如果执行失败，则会输出`Program execution failed.`。
+在`print.cpp`文件的同级目录下，我们提供了一个`Makefile`来编译、运行，在修改`print.cpp`之后，可以通过命令运行`make all`来进行测试，如果执行成功，则会输出`Program execution successful.`，如果执行失败，则会输出`Program execution failed.`。
 
 ### bonus: 任务3
 
