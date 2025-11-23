@@ -19,3 +19,7 @@ clue_c:
 clue_d:
 	g++ ./clue_to_you/d.cpp -o ./clue_to_you/d
 	./clue_to_you/d
+
+bonus:
+	g++ print_bonus.cpp -o print_bonus
+	./print_bonus
