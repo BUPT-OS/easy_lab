@@ -20,6 +20,6 @@ clue_d:
 	g++ ./clue_to_you/d.cpp -o ./clue_to_you/d
 	./clue_to_you/d
 
-bonus:
-	g++ print_bonus.cpp -o print_bonus
-	./print_bonus
+print_v2:
+	g++ print_v2.cpp -o print_v2
+	./print_v2

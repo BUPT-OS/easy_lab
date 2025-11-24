@@ -2,6 +2,7 @@
 using namespace std;
 int main()
 {
+    // Can the buffer of cout be reused among multiple cout calls?
     char *a = (char *)malloc(32);
     cout << "address of a is:" << (void *)a << endl;
     char *b = (char *)malloc(32);
