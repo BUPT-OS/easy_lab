@@ -28,6 +28,10 @@ tests: simple pingpong recursion
 	./pingpong
 	./recursion
 
+challenge1: challenge1.c $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^ -lm
+	./challenge1
+
 # 清理规则
 clean:
 	rm -f $(TARGETS) $(OBJS)
