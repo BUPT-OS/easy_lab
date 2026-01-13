@@ -32,6 +32,10 @@ challenge1: challenge1.c $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ -lm
 	./challenge1
 
+metircs: metrics.c $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
+	./metrics
+
 # 清理规则
 clean:
-	rm -f $(TARGETS) $(OBJS)
+	rm -f $(TARGETS) $(OBJS) challenge1 metrics
