@@ -198,8 +198,10 @@ address & -16L
 * 你可以使用gdb来调试bug
 ## Challenge 
 * thread_swtich里只保存了整数寄存器的上下文。如何拓展到浮点数？
+  * 这里我们提供了challenge1的测试用例，`make challenge1`可以编译并运行测试，如果输出带有`[PASS] FPU Mode Test Completed.`表示通过测试
 * 上面我们只实现了一个1 kthread :n uthread的模型，如何拓展成m : n的模型呢
 * 上述的实现是一个非抢占的调度器，如何实现抢占的调度呢？
+  * 这里我们提供了challenge3的测试用例，`make challenge3`可以编译并运行测试，如果输出带有`[PASS] Preemption Test (All threads finished)`表示通过测试
 * 在实现抢占的基础上，如何去实现同步原语（例如，实现一个管道channel）
 
 # 提交方式与评分
