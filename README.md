@@ -205,10 +205,21 @@ address & -16L
   * 这里我们提供了challenge3的测试用例，`make challenge3`可以编译并运行测试，如果输出带有`[PASS] Preemption Test (All threads finished)`表示通过测试
 * 在实现抢占的基础上，如何去实现同步原语（例如，实现一个管道channel）
 
+**注意：由于部分challenge的实现可能会影响基础测试，所以challenge不会在测试平台中测试。测试平台只统计基础测试**
+
 # 提交方式与评分
 你需要提交你的代码以及一份简单的报告。
 
 报告的内容包括：简单阐述你的实现，实验中遇到的困难，你的思考等等，报告数百字即可。
+
+我们提供了一个简单的`metrics.c`来查看用户态线程的上下文切换效率，运行`make metrics`可以编译并运行metrics测试，输出中带有粗略估计的上下文切换所用的时间。由于测试平台不会测试metrics和challenges，这部分内容需要在实验报告中做额外说明。
+
+对于challenge，需要描述完成challenge的思路，给出通过challenge的证据（比如输出中带有PASS的图片）。
+
+对于metrics，鼓励同学做出包含但不限于的以下事情，可以将所做内容体现在报告中：
+
+1. 尝试优化指标
+2. 编写更合理的metrics benchmark
 
 报告占比30%,实验70%
 
