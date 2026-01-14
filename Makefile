@@ -36,6 +36,10 @@ metircs: metrics.c $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 	./metrics
 
+challenge3: challenge3.c $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^ -lm
+	./challenge3
+
 # 清理规则
 clean:
-	rm -f $(TARGETS) $(OBJS) challenge1 metrics
+	rm -f $(TARGETS) $(OBJS) challenge1 metrics challenge3
