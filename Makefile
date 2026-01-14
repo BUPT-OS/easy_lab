@@ -28,13 +28,17 @@ tests: simple pingpong recursion
 	./pingpong
 	./recursion
 
+metircs: metrics.c $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
+	./metrics
+
 challenge1: challenge1.c $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ -lm
 	./challenge1
 
-metircs: metrics.c $(OBJS)
+challenge2: challenge2.c $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
-	./metrics
+	./challenge2
 
 challenge3: challenge3.c $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ -lm
@@ -42,4 +46,4 @@ challenge3: challenge3.c $(OBJS)
 
 # 清理规则
 clean:
-	rm -f $(TARGETS) $(OBJS) challenge1 metrics challenge3
+	rm -f $(TARGETS) $(OBJS) metrics challenge1 challenge2 challenge3 
