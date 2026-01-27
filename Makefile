@@ -28,7 +28,7 @@ tests: simple pingpong recursion
 	./pingpong
 	./recursion
 
-metircs: metrics.c $(OBJS)
+metrics: metrics.c $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 	./metrics
 

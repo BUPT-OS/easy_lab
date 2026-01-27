@@ -210,7 +210,9 @@ address & -16L
 # 提交方式与评分
 你需要提交你的代码以及一份简单的报告。
 
-报告的内容包括：简单阐述你的实现，实验中遇到的困难，你的思考等等，报告数百字即可。
+* 代码：提交一个压缩包，压缩包内具有一个文件夹叫`lab2`（不能是别的名字），然后文件夹下面是整个项目。
+  * 提交的代码需要能够运行`make tests`进行测试，测试系统依赖此评分。
+* 报告的内容包括：简单阐述你的实现，实验中遇到的困难，你的思考等等，报告数百字即可。
 
 我们提供了一个简单的`metrics.c`来查看用户态线程的上下文切换效率，运行`make metrics`可以编译并运行metrics测试，输出中带有粗略估计的上下文切换所用的时间。由于测试平台不会测试metrics和challenges，这部分内容需要在实验报告中做额外说明。
 
@@ -222,9 +224,6 @@ address & -16L
 2. 编写更合理的metrics benchmark
 
 报告占比30%,实验70%
-
-提交方式为暂时为生成一个patch，在[平台](http://10.161.28.28:8765/index)(使用校园网访问)提交。如何生成patch,详见[提交](https://github.com/BUPT-OS/os_lab/tree/lab1#%E6%8F%90%E4%BA%A4)。如果出现提交问题，可以参考zulip上面的[汇总](https://rros.zulipchat.com/#narrow/stream/376116-general/topic/.5B.E6.8F.90.E4.BA.A4.E9.94.99.E8.AF.AF.E8.AF.B7.E5.85.88.E7.9C.8B.E6.AD.A4.E8.B4.B4.5D)
-
 
 # 参考
 1. [AMD64 Architecture Programmer’s Manual, Volume 1: Application Programming.](https://www.scs.stanford.edu/05au-cs240c/lab/amd64/AMD64-1.pdf)
